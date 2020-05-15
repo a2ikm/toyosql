@@ -10,4 +10,4 @@ def assert_equal(expected, sql)
   end
 end
 
-assert_equal 1, "select 1"
+assert_equal [1], "select 1"

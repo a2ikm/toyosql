@@ -1,3 +1,3 @@
 def toyosql(sql)
-  return 1
+  return [1]
 end
