@@ -3,7 +3,6 @@ class Toyosql
   end
 
   Person = Struct.new(:id, :name, :age, :email)
-  PERSON_COLUMNS = Person.members.map(&:to_s)
 
   def initialize
     @people = [
@@ -17,7 +16,7 @@ class Toyosql
     if m = sql.match(/select (\w+)/)
       select_expr = m[1]
       @people.map do |person|
-        if PERSON_COLUMNS.include?(select_expr)
+        if Person.members.any? { |m| m.to_s == select_expr }
           [person[select_expr]]
         else
           [select_expr.to_i]
