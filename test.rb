@@ -17,7 +17,7 @@ end
 def assert_raise(klass, sql)
   begin
     toyosql(sql)
-  rescue => e
+  rescue Toyosql::Error => e
     if e.is_a?(klass)
       return
     else
