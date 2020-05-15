@@ -16,12 +16,12 @@ class Toyosql
   def execute(sql)
     if m = sql.match(/select (\w+)/)
       select_expr = m[1]
-      if PERSON_COLUMNS.include?(select_expr)
-        @people.map { |person|
-          person[select_expr]
-        }
-      else
-        [select_expr.to_i]
+      @people.map do |person|
+        if PERSON_COLUMNS.include?(select_expr)
+          [person[select_expr]]
+        else
+          [select_expr.to_i]
+        end
       end
     else
       raise SyntaxError
