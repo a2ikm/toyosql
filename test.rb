@@ -2,6 +2,10 @@
 
 require_relative "toyosql"
 
+def toyosql(sql)
+  Toyosql.new.execute(sql)
+end
+
 def assert_equal(expected, sql)
   actual = toyosql(sql)
   if actual != expected

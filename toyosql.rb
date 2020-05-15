@@ -1,12 +1,12 @@
-module Toyosql
+class Toyosql
   class SyntaxError < StandardError
   end
-end
 
-def toyosql(sql)
-  if m = sql.match(/select (\d+)/)
-    return [m[1].to_i]
-  else
-    raise Toyosql::SyntaxError
+  def execute(sql)
+    if m = sql.match(/select (\d+)/)
+      return [m[1].to_i]
+    else
+      raise SyntaxError
+    end
   end
 end
