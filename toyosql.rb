@@ -18,7 +18,10 @@ class Toyosql
   end
 
   class Lexer
-    RESERVED = %w(select).freeze
+    RESERVED = %w(
+      ,
+      select
+    ).freeze
 
     def initialize(sql)
       @sql = sql
@@ -30,6 +33,12 @@ class Toyosql
 
       while @pos < @sql.length
         if whitespace?(current)
+          advance
+          next
+        end
+
+        if RESERVED.include?(current)
+          tokens << Token.new(:reserved, current)
           advance
           next
         end
@@ -108,13 +117,13 @@ class Toyosql
   end
 
   class Node
-    attr_reader :type, :token, :name, :select_expr, :value
+    attr_reader :type, :token, :name, :select_exprs, :value
 
-    def initialize(type, token, name: nil, select_expr: nil, value: nil)
+    def initialize(type, token, name: nil, select_exprs: nil, value: nil)
       @type = type
       @token = token
       @name = name
-      @select_expr = select_expr
+      @select_exprs = select_exprs
       @value = value
     end
   end
@@ -148,6 +157,14 @@ class Toyosql
       end
     end
 
+    def consume_reserved(string)
+      if current && current.type == :reserved && current.string == string
+        token = current
+        advance
+        token
+      end
+    end
+
     def expect_reserved(string)
       if current && current.type == :reserved && current.string == string
         token = current
@@ -160,7 +177,14 @@ class Toyosql
 
     def select_stmt
       token = expect_reserved("select")
-      Node.new(:select_stmt, token, select_expr: select_expr)
+
+      select_exprs = []
+      select_exprs << select_expr
+      while consume_reserved(",")
+        select_exprs << select_expr
+      end
+
+      Node.new(:select_stmt, token, select_exprs: select_exprs)
     end
 
     def select_expr
@@ -198,18 +222,19 @@ class Toyosql
 
   def execute_select(stmt)
     @people.map do |person|
-      select_expr = stmt.select_expr
-      case select_expr.type
-      when :column_name
-        if Person.members.any? { |m| m.to_s == select_expr.name }
-          [person[select_expr.name]]
+      stmt.select_exprs.map do |select_expr|
+        case select_expr.type
+        when :column_name
+          if Person.members.any? { |m| m.to_s == select_expr.name }
+            person[select_expr.name]
+          else
+            raise NameError, "unknown column `#{select_expr.name}``"
+          end
+        when :number
+          select_expr.value
         else
-          raise NameError, "unknown column `#{select_expr.name}``"
+          raise SyntaxError, "unrecognized expression `#{select_expr.type}``"
         end
-      when :number
-        [select_expr.value]
-      else
-        raise SyntaxError, "unrecognized expression `#{select_expr.type}``"
       end
     end
   end
