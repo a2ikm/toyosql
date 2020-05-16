@@ -32,5 +32,6 @@ end
 assert_raise Toyosql::SyntaxError, "select"
 assert_equal [[1], [1], [1]], "select 1"
 assert_equal [[2], [2], [2]], "select 2"
+assert_equal [[12], [12], [12]], "select 12"
 assert_equal [[1], [2], [3]], "select id"
 assert_equal [["John Smith"], ["Nakano Pixy"], ["yocifico"]], "select name"

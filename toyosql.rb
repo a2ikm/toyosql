@@ -30,6 +30,7 @@ class Toyosql
 
       while @pos < @sql.length
         if whitespace?(current)
+          advance
           next
         end
 
@@ -40,14 +41,12 @@ class Toyosql
           else
             tokens << Token.new(:name, word)
           end
-          advance
           next
         end
 
         if digit?(current)
           digits = read_digits
           tokens << Token.new(:digits, digits)
-          advance
           next
         end
 
