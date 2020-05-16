@@ -8,7 +8,8 @@ class Toyosql
   class NameError < Error
   end
 
-  Person = Struct.new(:id, :name, :age, :email)
+  Person = Struct.new("Person", :id, :name, :age, :email)
+  Empty = Struct.new("Empty")
 
   def initialize
     @people = [
@@ -16,6 +17,7 @@ class Toyosql
       Person.new(2, "Nakano Pixy", 18, "nakano.pixy@example.com"),
       Person.new(3, "yocifico", 17, "yocifico@example.com"),
     ]
+    @empties = [Empty.new]
   end
 
   def execute(sql)
@@ -32,33 +34,26 @@ class Toyosql
 
   def execute_select(stmt)
     if stmt.from
-      @people.map do |person|
-        stmt.select_exprs.map do |select_expr|
-          case select_expr.type
-          when :column_name
-            if Person.members.any? { |m| m.to_s == select_expr.name }
-              person[select_expr.name]
-            else
-              raise NameError, "unknown column `#{select_expr.name}``"
-            end
-          when :number
-            select_expr.value
+      table = @people
+    else
+      table = @empties
+    end
+
+    table.map do |row|
+      stmt.select_exprs.map do |select_expr|
+        case select_expr.type
+        when :column_name
+          if row.class.members.any? { |m| m.to_s == select_expr.name }
+            row[select_expr.name]
           else
-            raise SyntaxError, "unrecognized expression `#{select_expr.type}``"
+            raise NameError, "unknown column `#{select_expr.name}``"
           end
+        when :number
+          select_expr.value
+        else
+          raise SyntaxError, "unrecognized expression `#{select_expr.type}``"
         end
       end
-    else
-      [
-        stmt.select_exprs.map do |select_expr|
-          case select_expr.type
-          when :number
-            select_expr.value
-          else
-            raise SyntaxError, "unrecognized expression `#{select_expr.type}``"
-          end
-        end
-      ]
     end
   end
 end
