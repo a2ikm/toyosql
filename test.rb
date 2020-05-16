@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
-require_relative "toyosql"
+$: << File.expand_path("../lib", __FILE__)
+require "toyosql"
 
 def toyosql(sql)
   Toyosql.new.execute(sql)
