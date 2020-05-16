@@ -30,10 +30,10 @@ def assert_raise(klass, sql)
 end
 
 assert_raise Toyosql::SyntaxError, "select"
-assert_equal [[1], [1], [1]], "select 1"
-assert_equal [[2], [2], [2]], "select 2"
-assert_equal [[12], [12], [12]], "select 12"
-assert_equal [[1, 2], [1, 2], [1, 2]], "select 1, 2"
-assert_equal [[1], [2], [3]], "select id"
-assert_equal [["John Smith"], ["Nakano Pixy"], ["yocifico"]], "select name"
-assert_equal [[1, "John Smith"], [2, "Nakano Pixy"], [3, "yocifico"]], "select id, name"
+assert_equal [[1]], "select 1"
+assert_equal [[2]], "select 2"
+assert_equal [[12]], "select 12"
+assert_equal [[1, 2]], "select 1, 2"
+assert_equal [[1], [2], [3]], "select id from people"
+assert_equal [["John Smith"], ["Nakano Pixy"], ["yocifico"]], "select name from people"
+assert_equal [[1, "John Smith"], [2, "Nakano Pixy"], [3, "yocifico"]], "select id, name from people"
