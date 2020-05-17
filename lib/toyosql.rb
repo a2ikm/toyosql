@@ -12,12 +12,16 @@ class Toyosql
   Empty = Struct.new("Empty")
 
   def initialize
-    @people = [
-      Person.new(1, "rangai", 32, "rangai@example.com"),
-      Person.new(2, "Nakano Pixy", 18, "nakano.pixy@example.com"),
-      Person.new(3, "yocifico", 17, "yocifico@example.com"),
-    ]
-    @empties = [Empty.new]
+    @tables = {
+      "people" => [
+        Person.new(1, "rangai", 32, "rangai@example.com"),
+        Person.new(2, "Nakano Pixy", 18, "nakano.pixy@example.com"),
+        Person.new(3, "yocifico", 17, "yocifico@example.com"),
+      ],
+      "empties" => [
+        Empty.new,
+      ]
+    }
   end
 
   def execute(sql)
@@ -34,9 +38,9 @@ class Toyosql
 
   def execute_select(stmt)
     if stmt.from
-      table = @people
+      table = @tables[stmt.from.name]
     else
-      table = @empties
+      table = @tables["empties"]
     end
 
     table.map do |row|
