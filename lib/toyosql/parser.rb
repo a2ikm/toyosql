@@ -75,7 +75,12 @@ class Toyosql
 
     def select_expr
       if token = consume(:name)
-        Node.new(:column_name, token, name: token.string)
+        if consume_reserved(".")
+          token2 = expect(:name)
+          Node.new(:column_name, token, name: token2.string, table: token.string)
+        else
+          Node.new(:column_name, token, name: token.string)
+        end
       elsif token = consume(:digits)
         Node.new(:number, token, value: token.string.to_i)
       else

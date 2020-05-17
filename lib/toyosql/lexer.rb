@@ -2,6 +2,7 @@ class Toyosql
   class Lexer
     RESERVED = %w(
       ,
+      .
       from
       select
     ).freeze
