@@ -8,11 +8,17 @@ class Toyosql
   class NameError < Error
   end
 
+  Job = Struct.new("Job", :id, :name)
   Person = Struct.new("Person", :id, :name, :age, :email)
   Empty = Struct.new("Empty")
 
   def initialize
     @tables = {
+      "jobs" => [
+        Job.new(1, "Blue mage"),
+        Job.new(2, "Red mage"),
+        Job.new(3, "White mage"),
+      ],
       "people" => [
         Person.new(1, "rangai", 32, "rangai@example.com"),
         Person.new(2, "Nakano Pixy", 18, "nakano.pixy@example.com"),
