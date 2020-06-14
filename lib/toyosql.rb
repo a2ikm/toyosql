@@ -7,23 +7,20 @@ class Toyosql
 
   class NameError < Error
   end
+  
+  
 
   Job = Struct.new("Job", :id, :name)
   Person = Struct.new("Person", :id, :name, :age, :email)
   Empty = Struct.new("Empty")
 
   def initialize
+    table_path = File.expand_path("../data/tables", __dir__)
+    jobs_csv = CSV.read(table_path + "/jobs.csv",{headers: true, converters: :integer})
+    people_csv = CSV.read(table_path + "/people.csv",{headers: true, converters: :integer})
     @tables = {
-      "jobs" => [
-        Job.new(1, "Blue mage"),
-        Job.new(2, "Red mage"),
-        Job.new(3, "White mage"),
-      ],
-      "people" => [
-        Person.new(1, "rangai", 32, "rangai@example.com"),
-        Person.new(2, "Nakano Pixy", 18, "nakano.pixy@example.com"),
-        Person.new(3, "yocifico", 17, "yocifico@example.com"),
-      ],
+      "jobs" => jobs_csv.map {|item| Job.new(item["id"],item["name"])},
+      "people" => people_csv.map {|item| Person.new(item["id"],item["name"],item["age"],item["email"])},
       "empties" => [
         Empty.new,
       ]
@@ -68,6 +65,7 @@ class Toyosql
   end
 end
 
+require "CSV"
 require_relative "toyosql/token"
 require_relative "toyosql/node"
 require_relative "toyosql/lexer"
