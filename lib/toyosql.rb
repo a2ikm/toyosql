@@ -8,23 +8,27 @@ class Toyosql
   class NameError < Error
   end
   
-  
+  TABLES_PATH = File.expand_path("../data/tables", __dir__)
 
-  Job = Struct.new("Job", :id, :name)
-  Person = Struct.new("Person", :id, :name, :age, :email)
   Empty = Struct.new("Empty")
 
+  def read_table(table_file)
+    table_name = File.basename(table_file, ".csv")
+    table_csv = CSV.read(TABLES_PATH + "/" + table_file, {headers: true, converters: :integer})
+    table_headers = table_csv.headers.map(&:to_sym)
+    table = Struct.new(*table_headers, keyword_init: true)
+    @tables[table_name] = table_csv.map {|item| table.new(item.to_h)}
+  end
+
   def initialize
-    table_path = File.expand_path("../data/tables", __dir__)
-    jobs_csv = CSV.read(table_path + "/jobs.csv",{headers: true, converters: :integer})
-    people_csv = CSV.read(table_path + "/people.csv",{headers: true, converters: :integer})
-    @tables = {
-      "jobs" => jobs_csv.map {|item| Job.new(item["id"],item["name"])},
-      "people" => people_csv.map {|item| Person.new(item["id"],item["name"],item["age"],item["email"])},
-      "empties" => [
+    files = Dir::entries(TABLES_PATH)
+    files.delete(".")
+    files.delete("..")
+    @tables = {"empties" => [
         Empty.new,
       ]
     }
+    files.map {|item| read_table(item)}
   end
 
   def execute(sql)
