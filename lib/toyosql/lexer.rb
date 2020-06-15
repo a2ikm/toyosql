@@ -5,6 +5,7 @@ class Toyosql
       .
       from
       select
+      insert
     ).freeze
 
     def initialize(sql)

@@ -7,27 +7,28 @@ class Toyosql
 
   class NameError < Error
   end
+  
+  TABLES_PATH = File.expand_path("../data/tables", __dir__)
 
-  Job = Struct.new("Job", :id, :name)
-  Person = Struct.new("Person", :id, :name, :age, :email)
   Empty = Struct.new("Empty")
 
+  def read_table(table_file)
+    name = File.basename(table_file, ".csv")
+    rows = CSV.read(TABLES_PATH + "/" + table_file, {headers: true, converters: :integer})
+    headers = rows.headers.map(&:to_sym)
+    table = Struct.new(*headers, keyword_init: true)
+    @tables[name] = rows.map {|row| table.new(row.to_h)}
+  end
+
   def initialize
-    @tables = {
-      "jobs" => [
-        Job.new(1, "Blue mage"),
-        Job.new(2, "Red mage"),
-        Job.new(3, "White mage"),
-      ],
-      "people" => [
-        Person.new(1, "rangai", 32, "rangai@example.com"),
-        Person.new(2, "Nakano Pixy", 18, "nakano.pixy@example.com"),
-        Person.new(3, "yocifico", 17, "yocifico@example.com"),
-      ],
-      "empties" => [
+    files = Dir::entries(TABLES_PATH)
+    files.delete(".")
+    files.delete("..")
+    @tables = {"empties" => [
         Empty.new,
       ]
     }
+    files.map {|t| read_table(t)}
   end
 
   def execute(sql)
@@ -68,6 +69,7 @@ class Toyosql
   end
 end
 
+require "CSV"
 require_relative "toyosql/token"
 require_relative "toyosql/node"
 require_relative "toyosql/lexer"
