@@ -13,11 +13,11 @@ class Toyosql
   Empty = Struct.new("Empty")
 
   def read_table(table_file)
-    table_name = File.basename(table_file, ".csv")
-    table_csv = CSV.read(TABLES_PATH + "/" + table_file, {headers: true, converters: :integer})
-    table_headers = table_csv.headers.map(&:to_sym)
-    table = Struct.new(*table_headers, keyword_init: true)
-    @tables[table_name] = table_csv.map {|item| table.new(item.to_h)}
+    name = File.basename(table_file, ".csv")
+    rows = CSV.read(TABLES_PATH + "/" + table_file, {headers: true, converters: :integer})
+    headers = rows.headers.map(&:to_sym)
+    table = Struct.new(*headers, keyword_init: true)
+    @tables[name] = rows.map {|row| table.new(row.to_h)}
   end
 
   def initialize
@@ -28,7 +28,7 @@ class Toyosql
         Empty.new,
       ]
     }
-    files.map {|item| read_table(item)}
+    files.map {|t| read_table(t)}
   end
 
   def execute(sql)
